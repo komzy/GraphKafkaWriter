@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class SendToFrinkPregelMain {
+public class SendToFlinkPregelMain {
 
     @CommandLine.Option(names = "-D")
     void setProperty(Map<String, String> props) {

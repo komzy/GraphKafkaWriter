@@ -25,7 +25,7 @@ resources/kafka.conf で指定します。
 上記コマンドラインでの指定を行わない場合は、kafka.confファイルの内容で実行されます。
 
 ### 2. IntelliJでの実行
-SendToFrinkPregelMainがmainクラスになります。  
+SendToFlinkPregelMainがmainクラスになります。  
 この中のmain()メソッドを実行してください。
 
 #### パラメータの指定方法

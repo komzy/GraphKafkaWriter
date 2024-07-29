@@ -141,10 +141,6 @@ public class SendToFlinkPregelMain {
                     // ノードID
                     nodeId = Integer.parseInt(texts[pos++].trim());
 
-                    if (nodeId == 174425) {
-                        System.out.println(nodeId);
-                    }
-
                     // ブロックID
                     if (texts[pos].trim().startsWith("b-")) {
                         blockId = Integer.parseInt(texts[pos++].trim().substring("b-".length()));

@@ -1,5 +1,3 @@
-package kafka;
-
 import object.Node;
 import org.apache.kafka.clients.producer.*;
 import picocli.CommandLine;
@@ -13,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class SendData {
+public class SendToFrinkPregelMain {
 
     @CommandLine.Option(names = "-D")
     void setProperty(Map<String, String> props) {
@@ -27,8 +25,8 @@ public class SendData {
         String dateFormat = params.dateFormat;
         String nodeFilePath = params.nodeFilePath;
         String scenarioFilePath = params.scenarioFilePath;
-        Map<Integer, Node> mapAllNode = getNodeListFromNodeFile(nodeFilePath);
         System.out.println(params);
+        Map<Integer, Node> mapAllNode = getNodeListFromNodeFile(nodeFilePath);
 
         Properties properties = new Properties();
         // Set the brokers (bootstrap servers)

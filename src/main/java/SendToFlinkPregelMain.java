@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class SendToFrinkPregelMain {
+public class SendToFlinkPregelMain {
 
     @CommandLine.Option(names = "-D")
     void setProperty(Map<String, String> props) {
@@ -140,10 +140,6 @@ public class SendToFrinkPregelMain {
                     String[] texts = text.split(",");
                     // ノードID
                     nodeId = Integer.parseInt(texts[pos++].trim());
-
-                    if (nodeId == 174425) {
-                        System.out.println(nodeId);
-                    }
 
                     // ブロックID
                     if (texts[pos].trim().startsWith("b-")) {

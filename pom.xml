@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>SendToFrinkPregelMain</mainClass>
+                            <mainClass>SendToFlinkPregelMain</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

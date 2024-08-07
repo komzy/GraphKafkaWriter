@@ -135,13 +135,17 @@ CSV形式で記載する。1行に1ノード情報記載。
 
 - scenario_pregel_max.csv : Pregel Max Value、及びPageRankテスト用シナリオ
 - scenario_pregel_ssp.csv : Pregel Single Shortest Path用シナリオ
+- scenario_pregel_reachability.csv : Pregel Reachability用シナリオ
 - scenario_blogel_max.csv : Blogel Max Valueテスト用シナリオ
 - scenario_blogel_ssp.csv : Blogel Single Shortest Path用シナリオ（タイムスタンプ指定なし）
 - scenario_blogel_ssp_time.csv : Blogel Single Shortest Path用シナリオ（タイムスタンプ指定あり）
+- scenario_blogel_reachability.csv : Blogel Reachability用シナリオ
 
 ## サンプルノードファイルについて
 
 - node_pregel_max.csv : Pregel Max Value、及びPageRankテスト用ノードファイル
 - node_pregel_ssp.csv : Pregel Single Shortest Path用ノードファイル
+- node_pregel_reachability.csv : Pregel Reachability用ノードファイル
 - node_blogel_max.csv : Blogel Max Valueテスト用ノードファイル
 - node_blogel_ssp.csv : Blogel Single Shortest Path用ノードファイル
+- node_blogel_reachability.csv : Blogel Reachability用ノードファイル

@@ -134,18 +134,30 @@ CSV形式で記載する。1行に1ノード情報記載。
 ## サンプルシナリオファイルについて
 
 - scenario_pregel_max.csv : Pregel Max Value、及びPageRankテスト用シナリオ
+- scenario_pregel_max_3window.csv : Pregel Max Value、及びPageRankテスト用シナリオ, 3Windowでの動作用
 - scenario_pregel_ssp.csv : Pregel Single Shortest Path用シナリオ
+- scenario_pregel_ssp_3window.csv : Pregel Single Shortest Path用シナリオ, 3Windowでの動作用 
 - scenario_pregel_reachability.csv : Pregel Reachability用シナリオ
+- scenario_pregel_reachability_3window.csv : Pregel Reachability用シナリオ, 3Windowでの動作用
 - scenario_blogel_max.csv : Blogel Max Valueテスト用シナリオ
+- scenario_blogel_max_3window.csv : Blogel Max Valueテスト用シナリオ, 3Windowでの動作用
 - scenario_blogel_ssp.csv : Blogel Single Shortest Path用シナリオ（タイムスタンプ指定なし）
+- scenario_blogel_ssp_3window.csv : Blogel Single Shortest Path用シナリオ（タイムスタンプ指定なし）, 3Windowでの動作用
 - scenario_blogel_ssp_time.csv : Blogel Single Shortest Path用シナリオ（タイムスタンプ指定あり）
 - scenario_blogel_reachability.csv : Blogel Reachability用シナリオ
+- scenario_blogel_reachability_3window.csv : Blogel Reachability用シナリオ, 3Windowでの動作用
 
 ## サンプルノードファイルについて
 
 - node_pregel_max.csv : Pregel Max Value、及びPageRankテスト用ノードファイル
+- node_pregel_max_3window.csv : Pregel Max Value、及びPageRankテスト用ノードファイル, 3Windowでの動作用
 - node_pregel_ssp.csv : Pregel Single Shortest Path用ノードファイル
+- node_pregel_ssp_3window.csv : Pregel Single Shortest Path用ノードファイル, 3Windowでの動作用
 - node_pregel_reachability.csv : Pregel Reachability用ノードファイル
+- node_pregel_reachability_3window.csv : Pregel Reachability用ノードファイル, 3Windowでの動作用
 - node_blogel_max.csv : Blogel Max Valueテスト用ノードファイル
+- node_blogel_max_3window.csv : Blogel Max Valueテスト用ノードファイル, 3Windowでの動作用
 - node_blogel_ssp.csv : Blogel Single Shortest Path用ノードファイル
+- node_blogel_ssp_3window.csv : Blogel Single Shortest Path用ノードファイル, 3Windowでの動作用
 - node_blogel_reachability.csv : Blogel Reachability用ノードファイル
+- node_blogel_reachability_3window.csv : Blogel Reachability用ノードファイル, 3Windowでの動作用

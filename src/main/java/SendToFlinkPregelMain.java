@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 
 public class SendToFlinkPregelMain {
 
+    private static long longKey = 0;
+
     @CommandLine.Option(names = "-D")
     void setProperty(Map<String, String> props) {
         props.forEach((k, v) -> System.setProperty(k, v == null ? "" : v));
@@ -261,7 +263,8 @@ public class SendToFlinkPregelMain {
         // タプル送信
         ProducerRecord<String, String> record
                 = new ProducerRecord<>(
-                        topic, JsonNodeUtil.createTuple(edgeId, startNode, endNode, numFeatureList, textFeatureList,
+                        topic, String.valueOf(longKey++),
+                        JsonNodeUtil.createTuple(edgeId, startNode, endNode, numFeatureList, textFeatureList,
                         timestamp, dateFormat).toString());
         producer.send(record);
         producer.flush();

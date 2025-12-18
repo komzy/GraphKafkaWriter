@@ -20,8 +20,7 @@ public class Configuration {
     public String topic;
     public String kafkaBootStrapServers;
     public String dateFormat;
-    public String nodeFilePath;
-    public String scenarioFilePath;
+    public String gzipFile;
 
     private Config conf;
 
@@ -43,70 +42,16 @@ public class Configuration {
 
         topic = kafka.getString("topic");
         kafkaBootStrapServers = kafka.getString("kafkaBootStrapServers");
-        dateFormat = kafka.getString("dateFormat");
-        nodeFilePath = kafka.getString("nodeFilePath");
-        scenarioFilePath = kafka.getString("scenarioFilePath");
+        gzipFile = kafka.getString("gzipFile");
     }
 
-    private List<Double> getDoubleList(Config conf, String key) {
-        List<Double> result = null;
-        if(conf.getValue(key).valueType() == ConfigValueType.LIST) {
-            result = conf.getDoubleList(key);
-        } else  if (conf.getValue(key).valueType() == ConfigValueType.STRING){
-            Config c = ConfigFactory.parseString("root:" + conf.getString(key));
-            result = c.getDoubleList("root");
-        }
-        return result;
-    }
-
-    private List<Integer> getIntList(Config conf, String key) {
-        List<Integer> result = null;
-        if(conf.getValue(key).valueType() == ConfigValueType.LIST) {
-            result = conf.getIntList(key);
-        } else  if (conf.getValue(key).valueType() == ConfigValueType.STRING){
-            Config c = ConfigFactory.parseString("root:" + conf.getString(key));
-            result = c.getIntList("root");
-        }
-        return result;
-    }
-
-    private List<String> getStringList(Config conf, String key) {
-        List<String> result = null;
-        if(conf.getValue(key).valueType() == ConfigValueType.LIST) {
-            result = conf.getStringList(key);
-        } else  if (conf.getValue(key).valueType() == ConfigValueType.STRING){
-            Config c = ConfigFactory.parseString("root:" + conf.getString(key));
-            result = c.getStringList("root");
-        }
-        return result;
-    }
-
-    private String stringListToString(List<String> list) {
-        StringBuffer buf = new StringBuffer();
-        for (String str : list) {
-            buf.append(str);
-        }
-        return buf.toString();
-    }
-
-    private ConfigList getConfigList(Config conf, String key) {
-        ConfigList result = null;
-        if(conf.getValue(key).valueType() == ConfigValueType.LIST) {
-            result = conf.getList(key);
-        } else  if (conf.getValue(key).valueType() == ConfigValueType.STRING){
-            Config c = ConfigFactory.parseString("root:" + conf.getString(key));
-            result = c.getList("root");
-        }
-        return result;
-    }
 
     @Override
     public String toString() {
         return "topic = " + topic + ", " +
                 "kafkaBootStrapServers = " + kafkaBootStrapServers + ", " +
                 "dateFormat = " + dateFormat + ", " +
-                "nodeFilePath = " + nodeFilePath + ", " +
-                "scenarioFilePath = " + scenarioFilePath
+                "gzipFile = " + gzipFile
                 ;
     }
 }

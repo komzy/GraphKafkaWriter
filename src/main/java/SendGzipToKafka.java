@@ -1,16 +1,28 @@
-import org.apache.kafka.clients.producer.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import picocli.CommandLine;
 import utils.Configuration;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
+import com.google.common.util.concurrent.RateLimiter;
+
 public class SendGzipToKafka {
 
     private static long longKey = 0;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @CommandLine.Option(names = "-D")
     void setProperty(Map<String, String> props) {
@@ -18,56 +30,68 @@ public class SendGzipToKafka {
     }
 
     public static void main(final String[] args) throws IOException {
+
         Configuration params = new Configuration(args);
+
         String topic = params.topic;
         String bootStrapServers = params.kafkaBootStrapServers;
         String gzipFile = params.gzipFile;
+
+        // User-defined rate (messages per second)
+        double userRate = params.rateLimiter;
+
         System.out.println(params);
 
         Properties properties = new Properties();
-        // Set the brokers (bootstrap servers)
         properties.setProperty("bootstrap.servers", bootStrapServers);
-        // Set how to serialize key/value pairs
-        properties.setProperty("key.serializer","org.apache.kafka.common.serialization.StringSerializer");
-        properties.setProperty("value.serializer","org.apache.kafka.common.serialization.StringSerializer");
+        properties.setProperty("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.setProperty("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+
         KafkaProducer<String, String> producer = new KafkaProducer<>(properties);
 
         long lineCount = countGzipJsonLines(gzipFile);
+
+        // Create Guava RateLimiter
+        RateLimiter rateLimiter = RateLimiter.create(userRate);
+
         long startTime = System.currentTimeMillis();
-        streamJsonlGzipToKafka(gzipFile, producer, topic);
+
+        try (Stream<String> lines = readGzipJsonLines(gzipFile)) {
+            streamJsonlGzipToKafka(producer, topic, lines, rateLimiter);
+        }
+
         producer.flush();
         producer.close();
 
         long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime)/1000;  //3128710 lines
-        long measuredRate = lineCount/duration;
+        long durationSeconds = (endTime - startTime) / 1000;
 
-        System.out.println("Sent " + lineCount + " lines in... " + duration + " seconds");
-        System.out.println("Measured Input Rate: " + measuredRate + " lines/seconds");
+        long measuredRate = durationSeconds > 0
+                ? lineCount / durationSeconds
+                : lineCount;
+
+        System.out.println("Sent " + lineCount + " lines in " + durationSeconds + " seconds");
+        System.out.println("Measured Input Rate: " + measuredRate + " lines/second");
     }
 
     public static void streamJsonlGzipToKafka(
-            String gzipFile,
             KafkaProducer<String, String> producer,
-            String topic) {
+            String topic,
+            Stream<String> lines,
+            RateLimiter rateLimiter) {
 
-        System.out.println("Writing to Kafka Topic Async: " + topic + "...");
+        System.out.println("Writing to Kafka Topic blocks: " + topic + "...");
 
-        try (Stream<String> lines = readGzipJsonLines(gzipFile)) {
+        lines.forEach(jsonLine -> {
+            try {
+                rateLimiter.acquire();
 
-            lines.forEach(jsonLine -> {
-                try {
-                    sendTuple(producer, topic, jsonLine);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+                sendTuple(producer, topic, jsonLine);
 
-        } catch (IOException e) {
-            throw new RuntimeException("Error reading gzip file: " + gzipFile, e);
-        }
+            } catch (IOException | ExecutionException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public static Stream<String> readGzipJsonLines(String filePath) throws IOException {
@@ -76,31 +100,77 @@ public class SendGzipToKafka {
         InputStreamReader decoder = new InputStreamReader(gzipStream, StandardCharsets.UTF_8);
         BufferedReader buffered = new BufferedReader(decoder);
 
-        return buffered.lines(); // Java Stream<String> of JSON lines
+        return buffered.lines();
     }
 
     public static long countGzipJsonLines(String filePath) throws IOException {
         try (InputStream fileStream = new FileInputStream(filePath);
              GZIPInputStream gzipStream = new GZIPInputStream(fileStream);
-             BufferedReader reader = new BufferedReader(new InputStreamReader(gzipStream, StandardCharsets.UTF_8))) {
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(gzipStream, StandardCharsets.UTF_8))) {
+
             return reader.lines().count();
         }
     }
 
-
     private static void sendTuple(
             KafkaProducer<String, String> producer,
             String topic,
-            String jsonLine) throws ExecutionException, InterruptedException {
+            String jsonLine)
+            throws ExecutionException, InterruptedException, IOException {
 
-        ProducerRecord<String, String> record = new ProducerRecord<>(
-                topic,
-                String.valueOf(longKey++),  // preserve ordering
-                jsonLine
-        );
+//        JsonNode json = objectMapper.readTree(jsonLine);
+//        String value = parseString2(json);
 
-        producer.send(record);   // blocks until acknowledged
+        String value = parseString(jsonLine);
+        ProducerRecord<String, String> record =
+                new ProducerRecord<>(topic, value, jsonLine);
 
+        producer.send(record);
     }
+
+
+    private static String parseString2(JsonNode jsonNode) {
+        JsonNode numFeatureListJson = jsonNode.get("numFeatureList");
+        if (numFeatureListJson != null && numFeatureListJson.isArray() && numFeatureListJson.size() > 0) {
+            return numFeatureListJson.get(0).asText();
+        }
+        return "";
+    }
+
+
+    private static final JsonFactory FACTORY = new JsonFactory();
+
+    private static String parseString(String jsonLine) throws IOException {
+        try (JsonParser parser = FACTORY.createParser(jsonLine)) {
+
+            int objectDepth = 0;
+
+            while (parser.nextToken() != null) {
+
+                JsonToken token = parser.currentToken();
+
+                if (token == JsonToken.START_OBJECT) {
+                    objectDepth++;
+                } else if (token == JsonToken.END_OBJECT) {
+                    objectDepth--;
+                }
+
+                // Only match root-level field
+                if (objectDepth == 1
+                        && token == JsonToken.FIELD_NAME
+                        && "numFeatureList".equals(parser.getCurrentName())) {
+
+                    parser.nextToken(); // move to START_ARRAY
+
+                    if (parser.nextToken() != JsonToken.END_ARRAY) {
+                        return parser.getValueAsString();
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
 
 }

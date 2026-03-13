@@ -19,8 +19,8 @@ public class Configuration {
      */
     public String topic;
     public String kafkaBootStrapServers;
-    public String dateFormat;
     public String gzipFile;
+    public Double rateLimiter;
 
     private Config conf;
 
@@ -39,10 +39,10 @@ public class Configuration {
 
     public void setValues(){
         Config kafka = conf.getConfig("kafka");
-
         topic = kafka.getString("topic");
         kafkaBootStrapServers = kafka.getString("kafkaBootStrapServers");
         gzipFile = kafka.getString("gzipFile");
+        rateLimiter = kafka.getDouble("rateLimiter");
     }
 
 
@@ -50,8 +50,6 @@ public class Configuration {
     public String toString() {
         return "topic = " + topic + ", " +
                 "kafkaBootStrapServers = " + kafkaBootStrapServers + ", " +
-                "dateFormat = " + dateFormat + ", " +
-                "gzipFile = " + gzipFile
-                ;
+                "gzipFile = " + gzipFile + ", rateLimiter = " + rateLimiter + " sec";
     }
 }

@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 
-public class SendGzipToKafka_2 {
+public class SendGzipToKafka_noGuava {
 
     private static long longKey = 0;
     private static ObjectMapper objectMapper = new ObjectMapper();

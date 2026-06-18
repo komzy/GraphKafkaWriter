@@ -1,18 +1,16 @@
 package utils;
 
 import com.typesafe.config.*;
+import org.yaml.snakeyaml.Yaml;
 import picocli.CommandLine;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 
 @CommandLine.Command
 public class Configuration {
-
-    // to set system parameters
-    @CommandLine.Option(names = "-D")
-    void setProperty(Map<String, String> props) {
-        props.forEach((k, v) -> System.setProperty(k, v == null ? "" : v));
-    }
 
     /**
      * Parameters
@@ -26,31 +24,42 @@ public class Configuration {
     public String outputFileName;
     public Boolean kafkaWrite;
 
-    private Config conf;
+    private Map<String, Object> config;
 
-    public Configuration(String... args) {
-        this("parameters.conf", args);
+    public Configuration(String... args) throws FileNotFoundException {
+        this("parameters.yml", args);
     }
 
-    public Configuration(String path, String... args) {
-        if(args != null)
-            new CommandLine(this).parseArgs(args);
+    public Configuration(String path, String... args) throws FileNotFoundException {
+        if(args != null) new CommandLine(this).parseArgs(args);
 
-        this.conf = ConfigFactory.load(path);
-        conf.checkValid(ConfigFactory.defaultReference());
-        this.setValues();
+        loadYaml(path);
+        setValues();
+    }
+
+    private void loadYaml(String yamlFile) throws FileNotFoundException {
+
+        String YAML_PATH = new File(".").getAbsoluteFile().getParent() + File.separator +
+                "conf" + File.separator + yamlFile;
+
+        Yaml yaml = new Yaml();
+        InputStream inputStream = new FileInputStream(YAML_PATH);
+        if (inputStream == null) {
+            throw new RuntimeException("Cannot find config file: " + YAML_PATH);
+        }
+        config = yaml.load(inputStream);
     }
 
     public void setValues(){
-        Config parameters = conf.getConfig("parameters");
-        topic = parameters.getString("topic");
-        kafkaBootStrapServers = parameters.getString("kafkaBootStrapServers");
-        rateLimiter = parameters.getDouble("rateLimiter");
-        dateFormat = parameters.getString("dateFormat");
-        nodeFilePath = parameters.getString("nodeFilePath");
-        scenarioFilePath = parameters.getString("scenarioFilePath");
-        outputFileName = parameters.getString("outputFileName");
-        kafkaWrite = parameters.getBoolean("kafkaWrite");
+        Map<String, Object> parameters = (Map<String, Object>) config.get("parameters");
+        topic = (String) parameters.get("topic");
+        kafkaBootStrapServers = (String) parameters.get("kafkaBootStrapServers");
+        rateLimiter = (Double) parameters.get("rateLimiter");
+        dateFormat = (String) parameters.get("dateFormat");
+        nodeFilePath = (String) parameters.get("nodeFilePath");
+        scenarioFilePath = (String) parameters.get("scenarioFilePath");
+        outputFileName = (String) parameters.get("outputFileName");
+        kafkaWrite = (Boolean) parameters.get("kafkaWrite");
     }
 
 

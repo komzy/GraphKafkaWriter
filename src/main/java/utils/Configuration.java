@@ -19,13 +19,17 @@ public class Configuration {
      */
     public String topic;
     public String kafkaBootStrapServers;
-    public String gzipFile;
     public Double rateLimiter;
+    public String dateFormat;
+    public String nodeFilePath;
+    public String scenarioFilePath;
+    public String outputFileName;
+    public Boolean kafkaWrite;
 
     private Config conf;
 
     public Configuration(String... args) {
-        this("kafka.conf", args);
+        this("parameters.conf", args);
     }
 
     public Configuration(String path, String... args) {
@@ -38,18 +42,27 @@ public class Configuration {
     }
 
     public void setValues(){
-        Config kafka = conf.getConfig("kafka");
-        topic = kafka.getString("topic");
-        kafkaBootStrapServers = kafka.getString("kafkaBootStrapServers");
-        gzipFile = kafka.getString("gzipFile");
-        rateLimiter = kafka.getDouble("rateLimiter");
+        Config parameters = conf.getConfig("parameters");
+        topic = parameters.getString("topic");
+        kafkaBootStrapServers = parameters.getString("kafkaBootStrapServers");
+        rateLimiter = parameters.getDouble("rateLimiter");
+        dateFormat = parameters.getString("dateFormat");
+        nodeFilePath = parameters.getString("nodeFilePath");
+        scenarioFilePath = parameters.getString("scenarioFilePath");
+        outputFileName = parameters.getString("outputFileName");
+        kafkaWrite = parameters.getBoolean("kafkaWrite");
     }
 
 
     @Override
     public String toString() {
-        return "topic = " + topic + ", " +
+        return "dateFormat = " + dateFormat + ", " +
+                "nodeFilePath = " + nodeFilePath + ", " +
+                "scenarioFilePath = " + scenarioFilePath + ", " +
+                "outputFileName = " + outputFileName + ", "  +
+                "kafkaWrite = " + kafkaWrite + ", "  +
+                "topic = " + topic + ", " +
                 "kafkaBootStrapServers = " + kafkaBootStrapServers + ", " +
-                "gzipFile = " + gzipFile + ", rateLimiter = " + rateLimiter + " sec";
+                "rateLimiter = " + rateLimiter + " sec";
     }
 }

@@ -1,7 +1,6 @@
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -17,8 +16,9 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
 import com.google.common.util.concurrent.RateLimiter;
+import utils.ScenarioProcessor;
 
-public class SendGzipToKafka {
+public class Main {
 
     private static long longKey = 0;
     private static ObjectMapper objectMapper = new ObjectMapper();
@@ -34,12 +34,24 @@ public class SendGzipToKafka {
 
         String topic = params.topic;
         String bootStrapServers = params.kafkaBootStrapServers;
-        String gzipFile = params.gzipFile;
 
         // User-defined rate (messages per second)
         double userRate = params.rateLimiter;
 
         System.out.println(params);
+
+        String gzipFile = ScenarioProcessor.process(params.nodeFilePath, params.scenarioFilePath,
+                params.outputFileName + ".jsonl.gz", params.dateFormat);
+
+        System.out.println("gzipFile file: " + gzipFile);
+
+        if (!params.kafkaWrite) {
+            System.out.println("kafka write is set to False");
+            System.exit(0);
+        }
+
+
+
 
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", bootStrapServers);
@@ -127,16 +139,6 @@ public class SendGzipToKafka {
 
         producer.send(record);
     }
-
-
-    private static String parseString2(JsonNode jsonNode) {
-        JsonNode numFeatureListJson = jsonNode.get("numFeatureList");
-        if (numFeatureListJson != null && numFeatureListJson.isArray() && numFeatureListJson.size() > 0) {
-            return numFeatureListJson.get(0).asText();
-        }
-        return "";
-    }
-
 
     private static final JsonFactory FACTORY = new JsonFactory();
 

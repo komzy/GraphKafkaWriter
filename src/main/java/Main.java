@@ -20,13 +20,6 @@ import utils.ScenarioProcessor;
 
 public class Main {
 
-    private static long longKey = 0;
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    @CommandLine.Option(names = "-D")
-    void setProperty(Map<String, String> props) {
-        props.forEach((k, v) -> System.setProperty(k, v == null ? "" : v));
-    }
 
     public static void main(final String[] args) throws IOException {
 
@@ -49,9 +42,6 @@ public class Main {
             System.out.println("kafka write is set to False");
             System.exit(0);
         }
-
-
-
 
         Properties properties = new Properties();
         properties.setProperty("bootstrap.servers", bootStrapServers);
